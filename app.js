@@ -33,9 +33,9 @@ if (getCookie("theme") != null) {
 themeButton.onclick = () => {
     if (body.classList.contains("light")) {
         body.classList.replace("light","dark")
-        document.cookie = "theme=dark"
+        setCookie("theme","dark",365)
     }else {
         body.classList.replace("dark","light")
-        document.cookie = "theme=light"
+        setCookie("theme","dark",365)
     }
 }
