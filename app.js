@@ -1,7 +1,18 @@
 const themeButton = document.getElementById("theme");
 const body = document.body;
 
-document.cookie = "theme=light";
+
+if (getCookie("theme") == null) {
+    setCookie("theme","dark",400)
+}
+
+function setCookie(name, value, days) {
+    const d = new Date();
+    d.setTime(d.getTime() + (days*24*60*60*1000));
+    let expires = "expires="+ d.toUTCString();
+    document.cookie = name + "=" + value + ";" + expires + ";path=/";
+  }
+
 
 function getCookie(name) {
     const cDecoded = decodeURIComponent(document.cookie)
@@ -15,7 +26,7 @@ function getCookie(name) {
     return result
 }
 
-if (getCookie("theme")) {
+if (getCookie("theme") != null) {
     body.classList.add(getCookie("theme"))
 }
 
