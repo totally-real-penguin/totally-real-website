@@ -3,7 +3,7 @@ const body = document.body;
 
 
 if (getCookie("theme") == null) {
-    setCookie("theme","dark",400)
+    setCookie("theme","dark",365)
 }
 
 function setCookie(name, value, days) {
