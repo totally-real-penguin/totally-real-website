@@ -36,7 +36,6 @@ themeButton.onclick = () => {
         document.cookie = "theme=dark"
     }else {
         body.classList.replace("dark","light")
-        CacheStorage.setItem("theme","light")
         document.cookie = "theme=light"
     }
 }
