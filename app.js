@@ -1,7 +1,7 @@
 const themeButton = document.getElementById("theme");
 const body = document.body;
 
-const storedTheme = window.localStorage.getItem("theme");
+const storedTheme = window.CacheStorage.getItem("theme");
 
 if (storedTheme) {
     body.classList.add(storedTheme)
