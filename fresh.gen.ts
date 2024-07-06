@@ -5,6 +5,7 @@
 import * as $_404 from "./routes/_404.tsx";
 import * as $_app from "./routes/_app.tsx";
 import * as $about from "./routes/about.tsx";
+import * as $games_snake_game from "./routes/games/snake/game.tsx";
 import * as $games_snake_index from "./routes/games/snake/index.tsx";
 import * as $index from "./routes/index.tsx";
 import * as $projects from "./routes/projects.tsx";
@@ -16,6 +17,7 @@ const manifest = {
     "./routes/_404.tsx": $_404,
     "./routes/_app.tsx": $_app,
     "./routes/about.tsx": $about,
+    "./routes/games/snake/game.tsx": $games_snake_game,
     "./routes/games/snake/index.tsx": $games_snake_index,
     "./routes/index.tsx": $index,
     "./routes/projects.tsx": $projects,

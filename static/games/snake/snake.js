@@ -1,59 +1,28 @@
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":10944,"index.wasm":49282035},"focusCanvas":true,"gdextensionLibs":[]};
+
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":11712,"index.wasm":76304906},"focusCanvas":false,"gdextensionLibs":[]};
+const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
 (function () {
-	const INDETERMINATE_STATUS_STEP_MS = 100;
+	const statusOverlay = document.getElementById('status');
 	const statusProgress = document.getElementById('status-progress');
-	const statusProgressInner = document.getElementById('status-progress-inner');
-	const statusIndeterminate = document.getElementById('status-indeterminate');
 	const statusNotice = document.getElementById('status-notice');
 
 	let initializing = true;
-	let statusMode = 'hidden';
-
-	let animationCallbacks = [];
-	function animate(time) {
-		animationCallbacks.forEach((callback) => callback(time));
-		requestAnimationFrame(animate);
-	}
-	requestAnimationFrame(animate);
-
-	function animateStatusIndeterminate(ms) {
-		const i = Math.floor((ms / INDETERMINATE_STATUS_STEP_MS) % 8);
-		if (statusIndeterminate.children[i].style.borderTopColor === '') {
-			Array.prototype.slice.call(statusIndeterminate.children).forEach((child) => {
-				child.style.borderTopColor = '';
-			});
-			statusIndeterminate.children[i].style.borderTopColor = '#dfdfdf';
-		}
-	}
+	let statusMode = '';
 
 	function setStatusMode(mode) {
 		if (statusMode === mode || !initializing) {
 			return;
 		}
-		[statusProgress, statusIndeterminate, statusNotice].forEach((elem) => {
-			elem.style.display = 'none';
-		});
-		animationCallbacks = animationCallbacks.filter(function (value) {
-			return (value !== animateStatusIndeterminate);
-		});
-		switch (mode) {
-		case 'progress':
-			statusProgress.style.display = 'block';
-			break;
-		case 'indeterminate':
-			statusIndeterminate.style.display = 'block';
-			animationCallbacks.push(animateStatusIndeterminate);
-			break;
-		case 'notice':
-			statusNotice.style.display = 'block';
-			break;
-		case 'hidden':
-			break;
-		default:
-			throw new Error('Invalid status mode');
+		if (mode === 'hidden') {
+			statusOverlay.remove();
+			initializing = false;
+			return;
 		}
+		statusOverlay.style.visibility = 'visible';
+		statusProgress.style.display = mode === 'progress' ? 'block' : 'none';
+		statusNotice.style.display = mode === 'notice' ? 'block' : 'none';
 		statusMode = mode;
 	}
 
@@ -69,37 +38,60 @@ const engine = new Engine(GODOT_CONFIG);
 	}
 
 	function displayFailureNotice(err) {
-		const msg = err.message || err;
-		console.error(msg);
-		setStatusNotice(msg);
+		console.error(err);
+		if (err instanceof Error) {
+			setStatusNotice(err.message);
+		} else if (typeof err === 'string') {
+			setStatusNotice(err);
+		} else {
+			setStatusNotice('An unknown error occured');
+		}
 		setStatusMode('notice');
 		initializing = false;
 	}
 
-	const missing = Engine.getMissingFeatures();
+	const missing = Engine.getMissingFeatures({
+		threads: GODOT_THREADS_ENABLED,
+	});
+
 	if (missing.length !== 0) {
-		const missingMsg = 'Error\nThe following features required to run Godot projects on the Web are missing:\n';
-		displayFailureNotice(missingMsg + missing.join('\n'));
+		if (GODOT_CONFIG['serviceWorker'] && GODOT_CONFIG['ensureCrossOriginIsolationHeaders'] && 'serviceWorker' in navigator) {
+			// There's a chance that installing the service worker would fix the issue
+			Promise.race([
+				navigator.serviceWorker.getRegistration().then((registration) => {
+					if (registration != null) {
+						return Promise.reject(new Error('Service worker already exists.'));
+					}
+					return registration;
+				}).then(() => engine.installServiceWorker()),
+				// For some reason, `getRegistration()` can stall
+				new Promise((resolve) => {
+					setTimeout(() => resolve(), 2000);
+				}),
+			]).catch((err) => {
+				console.error('Error while registering service worker:', err);
+			}).then(() => {
+				window.location.reload();
+			});
+		} else {
+			// Display the message as usual
+			const missingMsg = 'Error\nThe following features required to run Godot projects on the Web are missing:\n';
+			displayFailureNotice(missingMsg + missing.join('\n'));
+		}
 	} else {
-		setStatusMode('indeterminate');
+		setStatusMode('progress');
 		engine.startGame({
 			'onProgress': function (current, total) {
-				if (total > 0) {
-					statusProgressInner.style.width = `${(current / total) * 100}%`;
-					setStatusMode('progress');
-					if (current === total) {
-						// wait for progress bar animation
-						setTimeout(() => {
-							setStatusMode('indeterminate');
-						}, 500);
-					}
+				if (current > 0 && total > 0) {
+					statusProgress.value = current;
+					statusProgress.max = total;
 				} else {
-					setStatusMode('indeterminate');
+					statusProgress.removeAttribute('value');
+					statusProgress.removeAttribute('max');
 				}
 			},
 		}).then(() => {
 			setStatusMode('hidden');
-			initializing = false;
 		}, displayFailureNotice);
 	}
 }());
