@@ -1,9 +1,7 @@
-import type { Signal } from "@preact/signals";
-
 interface PreviewProps {
-  title : Signal<string>,
-  page : Signal<string>,
-  icon : Signal<string> 
+  title : string,
+  page : string,
+  icon : string
 }
 
 
