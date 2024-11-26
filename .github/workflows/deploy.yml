@@ -29,6 +29,8 @@ jobs:
       - name: Upload to Deno Deploy
         uses: denoland/deployctl@v1
         with:
-          project: "<your-project-name>"
+          project: "totally-real-website"
           entrypoint: "main.ts"
           root: "."
+          
+          
