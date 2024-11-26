@@ -10,15 +10,13 @@ export default function Home() {
         <main class="pt-9 text-center">
           <u class="text-3xl">The Totally Real Website</u>
           <p class="pt-9">
-            The hub for Totally Real Penguin's projects<br/>
-            Some cool things im working on right now our below
+            I don't have any icons over than the lemon right now<br/>
+            don't question the sizing of them. I will fix it
           </p>
           <div class="inline-grid grid-rows-none grid-flow-col gap-10 py-8">
             <Preview title={"Snake"} icon={"/favicon.ico"} page={"/games/snake"} />
-            <Preview title={"Snake"} icon={"/favicon.ico"} page={"/games/snake"} />
-            <Preview title={"Snake"} icon={"/favicon.ico"} page={"/games/snake"} />
-            <Preview title={"Snake"} icon={"/favicon.ico"} page={"/games/snake"} />
-            <Preview title={"Snake"} icon={"/favicon.ico"} page={"/games/snake"} />
+            <Preview title={"Cipher Solver"} icon={"/favicon.ico"} page={"/devlogs/cipher-solver-gd"} />
+            <Preview title={"Bank Run"} icon={"/favicon.ico"} page={"/devlogs/bank-run"} />
           </div>
         </main>
         <Footer/>
